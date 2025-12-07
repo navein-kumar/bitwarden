@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: unless-stopped
+    environment:
+      # Domain Configuration
+      DOMAIN: "https://bit.domain.in"
+
+      # Admin Configuration
+      ADMIN_TOKEN: "${ADMIN_TOKEN}"
+
+      # User Registration Settings
+      SIGNUPS_ALLOWED: "false"
+      INVITATIONS_ALLOWED: "true"
+      SIGNUPS_VERIFY: "true"
+
+      # Email Configuration (SMTP)
+      SMTP_HOST: "${SMTP_HOST}"
+      SMTP_FROM: "${SMTP_FROM}"
+      SMTP_FROM_NAME: "CodeSecure Vault"
+      SMTP_PORT: 465
+      SMTP_SECURITY: "force_tls"
+      SMTP_USERNAME: "${SMTP_USERNAME}"
+      SMTP_PASSWORD: "${SMTP_PASSWORD}"
+
+      # WebSocket Support
+      WEBSOCKET_ENABLED: "true"
+      WEBSOCKET_ADDRESS: "0.0.0.0"
+      WEBSOCKET_PORT: 3012
+
+      # Organization Settings
+      ORG_CREATION_USERS: "all"
+
+    volumes:
+      - ./vaultwarden-data:/data
+    ports:
+      - "8089:80"
+      - "3012:3012"
+    networks:
+      - npm_default
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/alive"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  npm_default:
+    external: true
